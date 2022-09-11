@@ -29,14 +29,9 @@ double d;
 long N_max=1000;
 double layer_number=0;
 
-void print_help() {
-    fprintf(stderr,"small_mc -g asymmetry_parameter -p n_Photons -z z0 -l layer_thickness -N N_max\n");
-    fprintf(stderr,"for binary output: x, y, z, u, v, w, dist0, dist1, z_max, event count, photon\n");
-}
-
 void dump() {
   if (ASCII==1) {
-    printf("%8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %10.6f %10.6f %10.6f %10ld %16ld \n", x, y, z, u, v, w, dist[0], dist[1], z_max, count, i);
+    printf("%8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %10.6f %10.6f %10.6f %10ld %16ld \n", x, y, z, u, v, w, dist[0], dist[1], z_max, i, count);
   } else {
   outbuf[0]=x;
   outbuf[1]=y;
@@ -169,7 +164,18 @@ void scatter() /* Scatter photon and establish new direction */
   u = t;
   return;
 }
- 
+
+void print_format() {fprintf(stderr, "x, y, z, u, v, w, dist[0], dist[1], z_max, i, count\n");
+}
+
+void print_help() {
+  fprintf(stderr,"small_mc_dist_2layer -g asymmetry_parameter -p n_Photons -z z0 -o output file -l scaled_layer_thickness \n");
+  fprintf(stderr, "\t\t -f prints the output binary format\n");
+  fprintf(stderr, "\t output_format:\n");
+  print_format();
+  return;
+}
+
 int main (int argc, char *argv[] )
 {
   int index;
@@ -181,7 +187,7 @@ int main (int argc, char *argv[] )
     print_help();
     return 1;
   }
-  while ((c = getopt (argc, argv, "hg:p:z:l:m:o:")) != -1) {
+  while ((c = getopt (argc, argv, "hfg:p:z:l:m:o:")) != -1) {
     outfile="";
     last_arg_processed+=2;
     switch (c) { 
@@ -200,11 +206,14 @@ int main (int argc, char *argv[] )
     case 'o':
       outfile = optarg;
       break;
+    case 'f':
+      print_format();
+      return 1;
     case 'h':
       print_help();
       return 1;
     default:
-      abort();
+      exit(1)
     }
   }
   if (outfile[0]=='\0') {

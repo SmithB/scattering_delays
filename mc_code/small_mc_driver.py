@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 import argparse
 import numpy as np
-
+import os
 
 parser=argparse.ArgumentParser(description='run the small_mc c code')
 parser.add_argument('--photons', '-p',  type=int, help="number of photons per run")
@@ -11,6 +11,9 @@ parser.add_argument('--output_base','-o', type=str, default='mc_out', help='outp
 parser.add_argument('--queue_file','-q', type=str, default='mc_queue.txt')
 parser.add_argument('--layer_thickness','-l', type=float, default=1000, help='layer thickness, giving maximum photon depth')
 args=parser.parse_args()
+
+os.system(f'small_mc_dist_depth -f 2> {args.output_base}_output_format.txt')
+os.system(f'echo {args.photons} > {args.output_base}_N_photons.txt')
 
 
 with open(args.queue_file,'w') as fh:

@@ -12,7 +12,7 @@ char   t2[80] = "1 W/cm^2 Uniform Illumination of Semi-Infinite Medium";
 double g = 0.0;		      	/* Scattering Anisotropy -1<=g<=1 */
 double z0=0; /* start photons at this level */
 double thick=0;
-long   i, photons = 10000000;
+long   i, photons = 0;
 double z_max = 0.0;
 double x,y,z,u,v,w,weight,dist,g2;
 double deepest_scatter=0;
@@ -30,7 +30,7 @@ double outbuf[10];
 
 void dump() {
   if (ASCII==1) {
-printf("%8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %10.6f %10.6f %10ld %16ld \n", x, y, z, u, v, w, dist, deepest_scatter, count, i);
+    printf("%8.3f %8.3f %8.3f %8.3f %8.3f %8.3f %10.6f %10.6f %16ld %10ld \n", x, y, z, u, v, w, dist, deepest_scatter, i, count);
   } else {
   outbuf[0]=x;
   outbuf[1]=y;
@@ -130,6 +130,18 @@ void scatter() /* Scatter photon and establish new direction */
   return;
 }
 
+void print_format() {
+      fprintf(stderr, "x, y, z, u, v, w, dist, deepest_scatter, i, count \n");
+}
+
+void print_help() {
+      fprintf(stderr,"small_mc_dist_depth -g asymmetry_parameter -p n_Photons -z z0 -o output file -l scaled_layer_thickness \n");
+      fprintf(stderr, "\t\t -f prints the output binary format\n");
+      fprintf(stderr, "\t output_format:\n");
+      print_format();
+      return;
+}
+
 int main (int argc, char *argv[] )
 {
   int index;
@@ -140,7 +152,7 @@ int main (int argc, char *argv[] )
   if (argc==0) {
     fprintf (stderr, "small_mc_dist_depth -g asymmetry_parameter -p n_Photons -m max_scattering -o outfile -l scaled_layer_thickness \n");
   }
-  while ((c = getopt (argc, argv, "hg:p:z:l:o:")) != -1) {
+  while ((c = getopt (argc, argv, "hfg:p:z:l:o:")) != -1) {
     last_arg_processed+=2;
     switch (c) { 
     case 'g':
@@ -159,13 +171,24 @@ int main (int argc, char *argv[] )
     case 'o':
       outfile = optarg;
       break;
+    case 'f':
+      print_format();
+      exit(1);
+      break;
     case 'h':
-      fprintf(stderr,"small_mc_dist_depth -g asymmetry_parameter -p n_Photons -z z0 -o output file -l scaled_layer_thickness \n");
-      return 1;
+      print_help();
+      exit(1);
     default:
-      abort();
+      print_help();
+      exit(1);
     }
   }
+  if (photons==0){
+    fprintf(stderr,"not starting any photons, exiting\n");
+    print_help();
+    exit(1);
+  }
+  
   if (outfile[0]=='\0') {
      ASCII=1;
    } else {
