@@ -1,0 +1,1 @@
+These results were generated assuming that the velocity and attenuation were appropriate for pure solid ice at 532 nm
